@@ -10,37 +10,12 @@ populateUI();
 let ticketPrice = +movieSelect.value;
 let rate;
 
-// Get exchange rate
-async function calculate() {
-  try {
-    let response = await fetch(
-      `https://api.exchangerate-api.com/v4/latest/USD`
-    );
-    let data = await response.json().then((data) => {
-      rate = data.rates[currencyEl.value];
-      // Change options rate
-      let options = [
-        `Avengers: Endgame `,
-        `Joker `,
-        `Toy Story 4 `,
-        `The Lion King `,
-      ];
-
-      options.forEach((element, key) => {
-        movieSelect[key] = new Option(
-          `${element} (${(movieSelect[key].value * rate).toFixed(2)} ${
-            currencyEl.value
-          })`,
-          movieSelect[key].value
-        );
-      });
-      total.innerText = count.innerText * (movieSelect.value * rate).toFixed(2);
-    });
-    return data;
-  } catch (error) {
-    alert(error);
-  }
-}
+const options = [
+  `Avengers: Endgame `,
+  `Joker `,
+  `Toy Story 4 `,
+  `The Lion King `,
+];
 
 // Save selected movie index and price
 function setMovieData(movieIndex, moviePrice) {
@@ -81,6 +56,45 @@ function populateUI() {
 
   if (selectedMovieIndex !== null) {
     movieSelect.selectedIndex = selectedMovieIndex;
+  }
+}
+
+// Get exchange rate
+async function calculate() {
+  try {
+    let response = await fetch(
+      `https://api.exchangerate-api.com/v4/latest/USD`
+    );
+    let data = await response.json().then((data) => {
+      const index = localStorage.getItem("selectedMovieIndex");
+      rate = data.rates[currencyEl.value];
+      console.log();
+      // Change options rate
+      options.forEach((element, key) => {
+        if (element == options[index]) {
+          movieSelect[key] = new Option(
+            `${element} (${(movieSelect[key].value * rate).toFixed(2)} ${
+              currencyEl.value
+            })`,
+            movieSelect[key].value,
+            false,
+            true
+          );
+        } else {
+          movieSelect[key] = new Option(
+            `${element} (${(movieSelect[key].value * rate).toFixed(2)} ${
+              currencyEl.value
+            })`,
+            movieSelect[key].value
+          );
+        }
+      });
+
+      total.innerText = count.innerText * (ticketPrice * rate).toFixed(2);
+    });
+    return data;
+  } catch (error) {
+    alert(error);
   }
 }
 
